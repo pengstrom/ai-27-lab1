@@ -1,0 +1,25 @@
+\documentclass[a4paper, parskip]{scrartcl}
+
+\input{preamble.tex}
+
+\begin{document}
+\input{title}
+
+\newpage
+\tableofcontents
+\thispagestyle{empty}
+
+\newpage
+
+% Theory of A*
+\input{theory/theory.tex}
+
+% Our implementation of A* and motivations
+\input{a-star/a-star.tex}
+
+% The non-A* methods we used
+\input{not-a-star/not-a-star.tex}
+
+\input{references.tex}
+
+\end{document}
