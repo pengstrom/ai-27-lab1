@@ -1,1 +1,17 @@
 \section{Theory}
+
+The A* algorithm is a type of best-first search using $f(n)$ as the estimation of the cheapest path through node $n$. The cost function is defined as
+\[
+f(n) = g(n) + h(n)
+\]
+where $g(n)$ is the cost of the path taken to node $n$ and $h(n)$ is a problem-specific heuristic estmating the cheapest path from node $n$ to the goal.
+
+The algorithm is complete and optimal given that $h$ is \emph{admissable} and \emph{consistent}. The latter is a stronger condition and implies the former.
+
+\begin{description}
+\item[Admissable] The function $h$ is \emph{admissable} if it never overstimates the cost to the goal.
+
+\item[Consistent] The function $h$ is \emph{consistent} if $h(n) \leq d(n, n') + h(n')$ for every node $n$, $n'$ and edge $(n, n')$ where $d(n,n')$ is the cost of the action from $n$ to $n'$.
+\end{description}
+
+Actually, the tree-search variant of A* only requires admissability to ensure completeness and optimality. The graph-search variant still requires consistency.
