@@ -1,3 +1,6 @@
+library(combinat)
+library(DeliveryMan)
+
 manhattanDist <- function(x1, y1, x2, y2) {
   return(abs(x2-x1)+abs(y2-y1))
 }
@@ -10,15 +13,17 @@ manhattanPackageDist <- function(x, y, P){
 permDistance <- function(car, packages, permutation) {
   dist = 0
   
-  for (i in 1:max(1,(length(permutation)-1))) {
+  #print(permutation)
+  for (i in 0:max(1,(length(permutation)-1))) {
     A = permutation[i]
     B = permutation[i+1]
-    if (i == 1) {
-      dist = dist + manhattanPackageDist(car$x, car$y, packages[A, ])
+    if (i == 0) {
+      dist = dist + manhattanPackageDist(car$x, car$y, packages[B, ])
     }
     else {
       dist = dist + manhattanPackageDist(packages[A,3], packages[A,4], packages[B, ])
     }
+    #print(dist)
   }
   return(dist)
 }
@@ -26,12 +31,13 @@ permDistance <- function(car, packages, permutation) {
 strategy <- function(roads,car,packages) {
   
   if (car$load > 0) {
-    target = packages[car$load, ]
-    nextMove=5
-    if (car$x<target[3]) {nextMove=6}
-    else if (car$x>target[3]) {nextMove=4}
-    else if (car$y<target[4]) {nextMove=8}
-    else if (car$y>target[4]) {nextMove=2}
+    package = packages[car$load, ]
+    target = findShortestPath(roads, car$x, car$y, package[3], package[4])
+    nextMove = 5
+    if (car$x<target[1]) {nextMove=6}
+    else if (car$x>target[1]) {nextMove=4}
+    else if (car$y<target[2]) {nextMove=8}
+    else if (car$y>target[2]) {nextMove=2}
     
     car$nextMove=nextMove
     return(car)
@@ -40,13 +46,12 @@ strategy <- function(roads,car,packages) {
     
     packages = packages[packages[,5] == 0, ]
     
-    min = 100000
+    min = .Machine$integer.max
     nrOfPackages = max(1,nrow(packages));
-    
     
     nextPackage = packages
     if (nrOfPackages > 1) {
-      
+      #permutations = permutations(1:nrOfPackages)
       permutations = permn(1:nrOfPackages)
       bestPerm = permutations[1]
       
@@ -60,15 +65,13 @@ strategy <- function(roads,car,packages) {
       nextPackage = packages[bestPerm[1], ]
     }
     
-    
+    target = findShortestPath(roads, car$x, car$y, nextPackage[1], nextPackage[2])
     
     nextMove = 5
-    if (car$x<nextPackage[1]) {nextMove=6}
-    else if (car$x>nextPackage[1]) {nextMove=4}
-    else if (car$y<nextPackage[2]) {nextMove=8}
-    else if (car$y>nextPackage[2]) {nextMove=2}
-    
-    
+    if (car$x<target[1]) {nextMove=6}
+    else if (car$x>target[1]) {nextMove=4}
+    else if (car$y<target[2]) {nextMove=8}
+    else if (car$y>target[2]) {nextMove=2}
     
     car$nextMove=nextMove
     return(car)
@@ -79,24 +82,46 @@ strategy <- function(roads,car,packages) {
 # Returns a matrix whose rows are the permutations of v in lexicographical
 # order. Not safe to run on the empty vector.
 permutations <- function(v) {
-    ps <- c()
-    p <- sort(v)
+  ps <- c()
+  p <- sort(v)
+  ps <- rbind(ps, p)
+  while (any(p[-length(p)] < p[-1])) {
+    k <- max(which(p[-length(p)] < p[-1]))
+    l <- max(which(p[k] < p))
+    p[c(k, l)] <- p[c(l, k)]
+    t <- (k + 1) : length(p)
+    p[t] <- rev(p[t])
     ps <- rbind(ps, p)
-    while (any(p[-length(p)] < p[-1])) {
-        k <- max(which(p[-length(p)] < p[-1]))
-        l <- max(which(p[k] < p))
-        p[c(k, l)] <- p[c(l, k)]
-        t <- (k + 1) : length(p)
-        p[t] <- rev(p[t])
-        ps <- rbind(ps, p)
-    }
-    return(ps)
+  }
+  return(ps)
 }
 
 #returns a list of coordinates that make the shortest path
-findShortestPath(car, fromX, fromY, toX, toY) {
-  #car$vroads - vertical penalties
-  #car$hroads - horizontal penalties
+findShortestPath <- function(roads, fromX, fromY, toX, toY) {
+  if (fromX == toX | fromY == toY) return(c(toX, toY));
+  
+  hCost = 0
+  vCost = 0
+  if (fromX < toX) {
+    hCost = roads$hroads[fromY, fromX] 
+  }
+  else {
+    hCost = roads$hroads[fromY, fromX-1]
+  }
+  
+  if (fromY < toY) {
+    vCost = roads$vroads[fromY, fromX] 
+  }
+  else {
+    vCost = roads$vroads[fromY-1, fromX]
+  }
+  
+  if (vCost > hCost) {
+    return(c(toX, fromY))
+  }
+  else {
+    return(c(fromX, toY))
+  }
 }
 
 runDeliveryMan(strategy)
