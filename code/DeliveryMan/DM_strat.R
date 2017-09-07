@@ -76,6 +76,23 @@ strategy <- function(roads,car,packages) {
   
 }
 
+# Returns a matrix whose rows are the permutations of v in lexicographical
+# order. Not safe to run on the empty vector.
+permutations <- function(v) {
+    ps <- c()
+    p <- sort(v)
+    ps <- rbind(ps, p)
+    while (any(p[-length(p)] < p[-1])) {
+        k <- max(which(p[-length(p)] < p[-1]))
+        l <- max(which(p[k] < p))
+        p[c(k, l)] <- p[c(l, k)]
+        t <- (k + 1) : length(p)
+        p[t] <- rev(p[t])
+        ps <- rbind(ps, p)
+    }
+    return(ps)
+}
+
 #returns a list of coordinates that make the shortest path
 findShortestPath(car, fromX, fromY, toX, toY) {
   #car$vroads - vertical penalties
@@ -83,4 +100,3 @@ findShortestPath(car, fromX, fromY, toX, toY) {
 }
 
 runDeliveryMan(strategy)
-
