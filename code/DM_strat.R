@@ -50,8 +50,9 @@ strategy <- function(roads,car,packages) {
     
     nextPackage = packages
     if (nrOfPackages > 1) {
-      #permutations = permutations(1:nrOfPackages)
-      permutations = permn(1:nrOfPackages)
+      permutations = permutations(1:nrOfPackages)
+      permutations = tapply(permutations,rep(1:nrow(permutations),each=ncol(permutations)),function(i)i)
+      
       bestPerm = permutations[1]
       
       for (p in permutations) {
@@ -229,5 +230,6 @@ test.a.star <- function() {
   )
 }
 
-runDeliveryMan(strategy, doPlot = FALSE, pause=0)
+runDeliveryMan(strategy, doPlot = FALSE,
+               pause=0)
 
