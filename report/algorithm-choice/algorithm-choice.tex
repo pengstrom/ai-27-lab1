@@ -1,28 +1,25 @@
 \begin{section}{Algorithm choice}
-  We begin by turning our game above into a well-defined problem as defined in \cite{rn}. In order, we define the different components. So suppose we are given a game with the strutcure presented above. Then, we define the following, letting the tuple $(p, t, s)$ denote $(position, turn, score)$ for the game.
+  We begin by turning our game above into a well-defined problem as defined in \cite{rn}. In order, we define the different components. So suppose that we are given a game with the strutcure presented above. Then let the tuple $(p, t, s)$ denote $(position, turn, score)$ of the game, which will be used to define our \textbf{states}.
 
   \begin{itemize}
-  \item \textbf{Initial state.} The initial state is given by the tuple $(me_1(), 1, 0)$.
+  \item \textbf{Initial state.} The initial state is given by the tuple $(me(1), 1, 0)$.
 
-  \item \textbf{Actions.} The actions for a given state $(p, t, s)$ are given by
-    \begin{equation*}
-      A' = \{ a \in A,\text{ a is a valid action in position }p \} \subset A.
-    \end{equation*}
+  \item \textbf{Actions.} The actions for a given state $(p, t, s)$ are given by $A$.
 
-  \item \textbf{Transition model.} We introduce the transition function $\tau: A\times V \rightarrow V$ where $\tau(a, (i, j)) = (i', j')$ is the resulting node from taking action $a$ at position $(i, j)$ if $a$ is a valid action at $(i,j)$, and $\tau(a, (i,j)) = (i,j)$ otherwise. Thus our transition model is defined by
+  \item \textbf{Transition model.} We use $e_t$ as the \textit{transition function}, and thus our transition model \texttt{Result} is defined by
     \begin{equation*}
       \begin{split}
-        \texttt{Result}( (p, t, s), a ) &= ( \tau(a, (i,j)),
-        t+1, s+c_t(a))
+        \texttt{Result}( (p, t, s), a ) &= ( e_t(a, (i,j)),
+        t+1, s+c_t(e_t(a, p))).
       \end{split}
     \end{equation*}
 
     
-  \item \textbf{Successor.} We let $S(((i, j), t, s) = \{\texttt{Result}(((i,j), t, s), a), a\in A' \}$ be the successors of a vertice $(i, j)$.
+  \item \textbf{Successor.} We let $S(((i, j), t, s) = \{\texttt{Result}(((i,j), t, s), a), a\in A \}$ be the successors of a vertice $(i, j)$.
 
   \item \textbf{Goal.} We have reached our goal in state $(p, t, c)$ if $s_t(p') = 2$ for all $p' \in P$.
 
-  \item \textbf{Path cost.} The path cost $c(((i,j),t,s), a, ((i',j'),t',s') = s'-s$ for any two valid states.
+  \item \textbf{Path cost.} The path cost $c(((i,j),t,s), a, ((i',j'),t',s') = s'-s$ for any two valid states ($t' = t+1$ and $(i', j')$ is or is adjacent to $(i, j)$ in $G$). 
 \end{itemize}
 We note that we have stated our objective of the game in terms of a \textbf{well-formed problem} as per \cite{rn}. In particular, a \textbf{solution}, an action sequence leading from the inital state to a goal state, of the problem also gives a solution to our game, and an \textbf{optimal solution}, a solution which minimizes path cost, gives a searched for solution $A_{seq}$ as mentioned in the previous section. 
 
@@ -36,5 +33,5 @@ Futhermore, we define:
   \end{equation*}
 \end{itemize}
 
-Now, from \cite{rn} we choose the $A*$-algorithm, as an informed search strategy, which, given a specific cost function as will be explained below, provides an \textbf{optimal} algorithm to solve the well-posed problem here.
+Now, from \cite{rn} we choose the $A*$-algorithm, as an informed search strategy, which, given a specific cost function as will be explained below, provides an \textbf{optimal} algorithm to solve the well-posed problem here. 1
 \end{section}
