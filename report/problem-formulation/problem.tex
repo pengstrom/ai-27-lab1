@@ -1,5 +1,6 @@
 \begin{section}{The Delivery Man}
-  To understand our solution and the algorithms that we have forcefully gladly chosen to implement, we must first explore the problem and study what it is that we are trying to accomplish. This is done first by describing a problem setting, describing the situation and what we will try to accomplish. Secondly, we introduce a mathematical formalisation of the problem in terms of a game, which will be the foundation for our theoretical analysis of the problem. This section is based on \cite{run} and \cite{lab}.
+  To understand our solution and the algorithms that we have forcefully gladly chosen to implement, we must first explore the problem and study what it is that we are trying to accomplish. This is done first by describing a problem setting, describing the situation and what we will try to accomplish.
+  Secondly, we introduce a mathematical formalisation of the problem in terms of a game The game provides a rigurous \textbf{abstraction} which will greatly simplify our theoretical analysis of the problem and the $A^*$-algorithm used to solve it. This section is based on \cite{run} and \cite{lab}.
   
   \begin{subsection}{Problem Setting}
     From this point on, you are a delivery boy for the company ``Planet Express'', a man who has been sent to a small, two-dimensional city with a well-known rectangular street layout. The first task, which you have already accomplished, is to travel to intersection $(x, y)$ and get into a car. In the car, you have found a note which contains a list of pick-up and delivery points (all at intersections), $(x_{p_i}, y_{p_i}, x_{d_i}, y_{d_i})$, for $i\in \{1,2,3,4, 5\}$. 
@@ -130,7 +131,7 @@
 
       Your \textbf{score} is determined by
       \begin{equation*}
-        \sum_{t = 1}^T c_t(e_t(a_{i_t}, me(t)))
+        \sum_{t = 1}^T c_t(e(a_{i_t}, me(t)))
       \end{equation*}      
 
       \begin{paragraph}{Notes about the game 1.}
@@ -148,7 +149,7 @@
     \end{subsubsection}
     
     \begin{subsubsection}{Performance metric}
-      The game above seems trivial if we were uninterrested in the score. For example, a finite solution for $k$ packages would be to just traverse the entire grid $2*k$ times, which would take a maximum of $mn(2k+1)$ steps\footnote{To \textit{arrive} in a corner may take a maximum of $m*n$ steps, which ensures that traversing the entire graph twice delivers at least one package.}.
+      The game above seems trivial if we were uninterrested in the score. For example, a finite solution for $k$ packages would be to just traverse the entire grid $2k$ times, which would take a maximum of $mn(2k+1)$ steps\footnote{To \textit{arrive} in a corner may take a maximum of $mn$ steps, which ensures that traversing the entire graph twice delivers at least one package.}.
 
       Our interresting in the game is to minimize the cost of edge traversals while providing a tractable answer to the game. That is, \textbf{we search for a solution $A_{seq}$ that is solution to the game above, and which minimizes the total score}. 
     \end{subsubsection}

@@ -1,4 +1,60 @@
 \section{A*}
 
-The $A^*$-algorithm has almost identical structure to what is known as \textit{uniformed cost search} which is a graph-search algorithm that ``expands nodes in order of their optimal path cost'' \cite{rn}, which will be explained here.
+Formulating the problem in terms of a game, with accompaigning well-defined problem formulation simplifies the explaination of the $A^*$-algorithm. Thta is, all functionality that is necessary to describe the problem has already been introduced. We assume that the reader is familiar with the concept of a priority queue $Q$, with functions $\texttt{Empty}(Q)$, $\texttt{Pop}(Q)$ and $\texttt{Insert}(n, Q)$ for an object $n$.
 
+However, we have to assume that our cost function is independent of $t$, that is $c_t = c_{t'} =: c$ for all $t, t'$. This is later managed in our implementation.
+
+Briefly, the $A^*$-algorithm uses a priority queue \textit{frontier} initialized to our current position, and the order of $n\in \textit{frontier}$ is determined by the path-cost of our current position to the node plus a heuristic $h(n)$. Then it expands the nodes in the order of \textit{frontier} and adds new reachable nodes to the frontier until a goal state is reached.
+
+That is, unless the \textit{frontier} is empty, in which case there is no path to the goal. Note however, that this is not a scenario for our game.
+
+Under certain conditions on the heuristic function $h$, the $A^*$ algorithm is optimal, which will be explained below.
+
+\begin{subsection}{Heuristic function}
+
+  A heuristic function $h(n)$ for a node $n$ is a function which estimates the ``cost of the cheapest path from the state at node $n$ to the goal'' \cite{rn}. The $A^*$ algorithm is optimal given that $h$ is \emph{admissable} and \emph{consistent}. The latter is a stronger condition and implies the former.
+
+\begin{description}
+\item[Admissable] The function $h$ is \emph{admissable} if it never overstimates the cost to the goal.
+
+\item[Consistent] The function $h$ is \emph{consistent} if $h(n) \leq d(n, n') + h(n')$ for every state $n'$ reachable from $n$ by some sequence of actions, where $d(n,n')$ is the minimum cost of transitioning from $n$ to $n'$.
+\end{description}
+
+In particular, $d(n, n')$ can be defined as the minimum cost path $p_1...p_n$ in the set of paths $P$ from $n$ to $n'$. That is,
+\begin{equation*}
+  d(n,n') = \min_{(p_1...p_k) \in P} \sum_{i=1}^{k-1}c((p_i, p_{i+1})).
+\end{equation*}
+
+TODO: Not necessary? Kan förklaras med adjacent noder också?!
+
+\end{subsection}
+
+\begin{subsection}{The $A^*$ algorithm}
+  The precise formulation of the $A^*$-algorithm, which is the \textit{uniformed cost search} algorithm presented on page 84 in \cite{rn}, except that the node $n = (p, t, s)$ in the priority queue \textit{frontier} is ordered by $s + h(n)$ for a heuristic $h(n)$.
+
+  There is one thing left to explain, namely that the algorithm maintains an \textit{explored} set, such that we do not add an already expanded node back into the \textit{frontier}.
+
+  This is important because with the structure of the modified \textit{uniformed cost search} algorithm and by the definition of the heuristic function $h$, when we expand a node $n'$ for the first time, we are guaranteed that we have found the minimal cost to the node $n'$. This is what is known as \textbf{optimality} of the $A^*$ algorithm.
+
+  In particular, the $A^*$ algorithm works both as a tree- and graph-search algorithm. Actually, the tree-search variant of A* only requires admissability of $h$ to ensure optimality. The graph-search variant still requires consistency of $h$ as well.
+
+  For \textbf{completeness} of $A^*$, a guarantee that the algorithm actually find a solution when there is one \cite{rn}, it is required that only a finite number of nodes with cost less than or equal to the optimal path cost.
+
+  
+\end{subsection}
+
+  \begin{subsection}{Choices for implementation}
+
+    At first, we note that for dimension $n > 1, m > 1$ the game graph $G$ is not a tree, thus we will implement $A^*$ as a graph search algorithm. This requires a heuristic function $h$ which is both admissible and consistent.
+
+    \begin{subsubsection}{Choice of heuristic $h$}
+      Let's call an admissible and consitent heuristic $h$ acceptable, and we immediately note that $h(n) = 0$ is acceptable.
+
+      This doesn't really offer any help or improvements over the \textit{uniformed cost search} algorithm. So let's think some more.
+
+      Note that $h(n) = \texttt{ManhattanDistance}(n, g) * \min_{e_1, e_2\in E}(c_t(e_1, e_2)$, that is, $h$ is the manhattan distance from $n$ to $g$ times the minimal edge cost.
+
+      It is obviously acceptable, since $s + h(n) \leq d(n, n')$ and in addition, it \textbf{punished moving further away from the goal node $g$}. So now we're actually improving upon the search. 
+    \end{subsubsection}
+
+  \end{subsection}

@@ -6,11 +6,11 @@
 
   \item \textbf{Actions.} The actions for a given state $(p, t, s)$ are given by $A$.
 
-  \item \textbf{Transition model.} We use $e_t$ as the \textit{transition function}, and thus our transition model \texttt{Result} is defined by
+  \item \textbf{Transition model.} We use $e$ as the \textit{transition function}, and thus our transition model \texttt{Result} is defined by
     \begin{equation*}
       \begin{split}
-        \texttt{Result}( (p, t, s), a ) &= ( e_t(a, (i,j)),
-        t+1, s+c_t(e_t(a, p))).
+        \texttt{Result}( (p, t, s), a ) &= ( e(a, (i,j)),
+        t+1, s+c_t(e(a, p))).
       \end{split}
     \end{equation*}
 
@@ -19,7 +19,7 @@
 
   \item \textbf{Goal.} We have reached our goal in state $(p, t, c)$ if $s_t(p') = 2$ for all $p' \in P$.
 
-  \item \textbf{Path cost.} The path cost $c(((i,j),t,s), a, ((i',j'),t',s') = s'-s$ for any two valid states ($t' = t+1$ and $(i', j')$ is or is adjacent to $(i, j)$ in $G$). 
+  \item \textbf{Path cost.} The path cost $c(((i,j),t,s), a, ((i',j'),t',s') = s'-s$ for any two valid states ($t' = t+1$ and $(i', j')$ is or is adjacent to $(i, j)$ in $G$ and the cost of the action is $s'-s$). 
 \end{itemize}
 We note that we have stated our objective of the game in terms of a \textbf{well-formed problem} as per \cite{rn}. In particular, a \textbf{solution}, an action sequence leading from the inital state to a goal state, of the problem also gives a solution to our game, and an \textbf{optimal solution}, a solution which minimizes path cost, gives a searched for solution $A_{seq}$ as mentioned in the previous section. 
 
