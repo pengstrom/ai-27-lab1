@@ -1,9 +1,9 @@
-\section{Not A*}
+\section{Implementation that is not $A^*$}
 
-Todo
-\begin{itemize}
-\item Cost depends on turn $t$
-\item So it's not optimal?
-\item We don't know if path costs are positive, so we don't know if $A^*$ can work
-\item Implementation?
-\end{itemize}
+Path costs of \texttt{runDeliveryMan} are updated each turn. Thus each turn, we determine which package to go for, and get its location and then run the $A^*$ search. Determining which package is chosen is done by \textbf{exhaustive search}, which is reasonable given the dimensionality of the game.
+
+The $A^*$ algorithm is thus \textbf{optimal given the current environment}. However, it is easy to think of an example where, if we could access information about future, it would have been wiser to choose a more costly path earlier on. For example, take the nodes $A, B, C$ and we want to travel from $A$ to $C$. If the costs of the current turn are
+$$c(A, C) = 3, c(A, B) = 1, c(B, C) = 3,$$
+we obviously want to travel directly to $C$. However, if the next turn would change only $c(B, C)$ to $1$, we easily see that it would have been better to complete the game in two turns.
+
+So the implementation that is not the $A^*$ algorithm is first how to determine which package to ``go for'', which is done without taking in to account that the mechanics may force us to accidentally pick up another package on the way. Secondly, it is the mechanics of the game, such as how to give the actions to take to the function \texttt{runDeliveryMan}.

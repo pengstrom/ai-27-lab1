@@ -17,15 +17,10 @@ Under certain conditions on the heuristic function $h$, the $A^*$ algorithm is o
 \begin{description}
 \item[Admissable] The function $h$ is \emph{admissable} if it never overstimates the cost to the goal.
 
-\item[Consistent] The function $h$ is \emph{consistent} if $h(n) \leq d(n, n') + h(n')$ for every state $n'$ reachable from $n$ by some sequence of actions, where $d(n,n')$ is the minimum cost of transitioning from $n$ to $n'$.
+\item[Consistent] The function $h$ is \emph{consistent} if $h(n) \leq d(n, n') + h(n')$ for every state $n'$ immediately adjacent to $n$ (can be reached by one action) where $d(n,n')$ is the minimum cost of transitioning from $n$ to $n'$.
 \end{description}
 
-In particular, $d(n, n')$ can be defined as the minimum cost path $p_1...p_n$ in the set of paths $P$ from $n$ to $n'$. That is,
-\begin{equation*}
-  d(n,n') = \min_{(p_1...p_k) \in P} \sum_{i=1}^{k-1}c((p_i, p_{i+1})).
-\end{equation*}
-
-TODO: Not necessary? Kan förklaras med adjacent noder också?!
+In particular, $d(n, n') = d((p,t,s), (p', t+1, s+c(p,p'))) = c(p,p')$.
 
 \end{subsection}
 
@@ -48,13 +43,28 @@ TODO: Not necessary? Kan förklaras med adjacent noder också?!
     At first, we note that for dimension $n > 1, m > 1$ the game graph $G$ is not a tree, thus we will implement $A^*$ as a graph search algorithm. This requires a heuristic function $h$ which is both admissible and consistent.
 
     \begin{subsubsection}{Choice of heuristic $h$}
-      Let's call an admissible and consitent heuristic $h$ acceptable, and we immediately note that $h(n) = 0$ is acceptable.
+      Let's call an admissible and consitent heuristic $h$ acceptable, and we immediately note that $h(n) = 0$ is acceptable. This however doesn't really offer any help or improvements over the \textit{uniformed cost search} algorithm. So let's think some more.
 
-      This doesn't really offer any help or improvements over the \textit{uniformed cost search} algorithm. So let's think some more.
+      We se that $h(n) = \texttt{ManhattanDistance}(n, g) * \min_{e_1, e_2\in E}(c_t(e_1, e_2)$, that is, $h$ is the manhattan distance from $n$ to $g$ times the minimal edge cost, is an acceptable heuristic. To see this, note that $s + h(n) \leq d(n, n')$. In addition, it \textbf{punished moving further away from the goal node $g$}. In fact, it does so by making it less costly to move away from the goal when there are potential cheap roads on the longer route. Now we're actually improving upon the search.
 
-      Note that $h(n) = \texttt{ManhattanDistance}(n, g) * \min_{e_1, e_2\in E}(c_t(e_1, e_2)$, that is, $h$ is the manhattan distance from $n$ to $g$ times the minimal edge cost.
+      Further elaboration on what type of heuristic could be used might be fruitful in some cases, however as the problem does not expose how the edge costs are updated or assigned, we have not been capable of finding a better function. Thus we have chosen $h$ as immediately above.
+    \end{subsubsection}
+    
+    \begin{subsubsection}{Implementation considerations}
 
-      It is obviously acceptable, since $s + h(n) \leq d(n, n')$ and in addition, it \textbf{punished moving further away from the goal node $g$}. So now we're actually improving upon the search. 
+      The goal is to provide create a function called \texttt{strategy} which can be passed to the game \texttt{runDeliveryMan} as the argument \texttt{carReady}. Since the function \texttt{runDeliveryMan} is provided in the R programming language, we have chosen to use R as well. 
+
+      \textbf{A crucial piece} of the information available aboute \texttt{runDeliveryMan} is missing. We have no information about the non-negativity of the edge costs. Consider a graph with nodes $A, B, C$, and path costs $c(A, B) = -2, c(B, A) = 1, c(A, C) = 1$. If the goal is to go from $A$ to $C$, we easily see that the $A^*$-algorithm will never terminate. However, manual experimentation gives strong indications that the edge costs of \texttt{runDeliveryMan} are non-negative. Thus we can use it to find a lowest cost path. 
+
+      \textbf{The dimension} of the physical problem to solve, rather than the theoretical, is low. The dimension of the modelled game is $(10, 10)$ and the number of packages to deliver is $5$. This makes it possible to disregard most normal consierations such as the search- and insert-complexity of queues, which favors a more direct programming style, which may not be tractable given larger dimensions. This has the advantage that the written program itself is easier to read for others. 
+    \end{subsubsection}
+
+    \textbf{The mechanics} of \texttt{runDeliveryMan} follows the mechanics for the game presented above. Therefor it is a direct consequence that the program we've written is guided by those. 
+
+    \begin{subsubsection}{Implementation of $A^*$ }
+
+      R provides a rather functional style of programming, and since the dimensionality of the problem permits rather unsofisticated algorithms, the actual implementation of the $A^*$ algorithm follows the algorithm presented in \cite{rn} as the \textit{uniformed cost search}.
+
     \end{subsubsection}
 
   \end{subsection}

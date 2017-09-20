@@ -9,7 +9,7 @@
     
     You discover that the car doors are locked, and you note that the back side of the note says that the doors may be open once your work has been done. By you. Now, it seems that your company is completely unconcerned about your work-load, survival or well-being. However, \textbf{for you it is important to minimize time spent working}.
 
-    Fortunately, the city's traffic control office provides continuous, up-to-date information about traffic load for each road-segment at each moment in time. So at each intersection, if you can develop some algorithm that is fast enough at computing, you will be able to determine the most optimal route at each intersection. Or, if you find it appropriate, you could wait a while at the intersection. It is up to you, it's not as if Hubert J. Farnsworth, the not so benevolent dictator of ``Planet Express'' has any idea of what is going on.
+    Fortunately, the city's traffic control office provides continuous, up-to-date information about traffic load for each road-segment at each moment in time. So at each intersection, if you can develop some algorithm that is fast enough at computing, you will be able to determine the most optimal route at your current location. Or, if you find it appropriate, you could wait a while at the intersection. It is up to you, it's not as if Hubert J. Farnsworth, the not so benevolent dictator of ``Planet Express'' has any idea of what is going on.
   \end{subsection}
 
   \begin{subsection}{Game Construction}
@@ -18,7 +18,7 @@
     \begin{subsubsection}{The Game Graph}
     Consider $[m]\times [n]$, where $[k] = \{1, ..., k\}$ for positive $k$. Furthermore, we denote the \textbf{horizontal edges} between node $(i, j)$ and $(i, j+1)$ in $[m] \times [n]$ by $h_{i,j}$. Similarly, we denote the \textbf{vertical edges} between node $(i, j)$ and $(i+1, j)$ in $[m] \times [n]$ by $v_{i,j}$. Finally, we also define $0_{i,j}$ as ``the edge'' from $(i,j)$ to $(i,j)$. 
 
-    Note that the $m\cdot (n-1)$ horizontal, and $(m-1)\cdot n$ vertical edges in our construction can be drawn such that the graph, lest the loops $0_{i,j}$, consists of an exterior rectangle within which there are $m-2$ horizontal and $n-2$ vertical lines, with nodes $(i, j)$ in the intersection of the $i$:th horizontal and $j$:the vertical line. See figure \ref{fig:grid}.
+    Note that the $m\cdot (n-1)$ horizontal, and $(m-1)\cdot n$ vertical edges in our construction can be drawn such that the graph, lest the loops $0_{i,j}$, consists of an exterior rectangle within which there are $m-2$ horizontal and $n-2$ vertical lines, with nodes $(i, j)$ in the intersection of the $i$:th horizontal and $j$:the vertical line. See figure 1.
 
       \begin{figure}[H]
         \label{fig:grid}
@@ -116,7 +116,7 @@
 
       \item A function $me: \mathbb{N} \rightarrow M\times N \cup \{\emptyset \}$, where $me(t')$ gives your location $(i, j)$ for your current turn or turns $t' \leq t$, or $\emptyset$ otherwise.
 
-      \item A cost function $c_t: E \rightarrow \mathbb{N}$ associated with each edge, and $c(0_{i,j}) = 0$. For example, if it is turn $3$ and we want to know the cost of the horizontal edge $h_{2,3}$ going from vertice $(2, 3)$ to vertice $(2, 4)$ at turn $3$, we call $c_3(h_{2,3})$.
+      \item A non-negative cost function $c_t: E \rightarrow \mathbb{N}$ associated with each edge, and $c(0_{i,j}) = 0$. For example, if it is turn $3$ and we want to know the cost of the horizontal edge $h_{2,3}$ going from vertice $(2, 3)$ to vertice $(2, 4)$ at turn $3$, we call $c_3(h_{2,3})$.
 
       \item An edge function $e: A\times V \rightarrow E$ such that $e(a, (i,j)) = ((i, j),(i',j'))$ where $(i', j')$ is the node that results from taking action $a$ in position $(i,j)$ if the action is valid, and just $(i, j)$ otherwise.
 
@@ -154,7 +154,6 @@
       Our interresting in the game is to minimize the cost of edge traversals while providing a tractable answer to the game. That is, \textbf{we search for a solution $A_{seq}$ that is solution to the game above, and which minimizes the total score}. 
     \end{subsubsection}
 
-    TODO icke-negativa edges är ett krav för A*?
   \end{subsection}
 
   
