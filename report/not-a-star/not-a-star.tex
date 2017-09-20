@@ -7,3 +7,7 @@ $$c(A, C) = 3, c(A, B) = 1, c(B, C) = 3,$$
 we obviously want to travel directly to $C$. However, if the next turn would change only $c(B, C)$ to $1$, we easily see that it would have been better to complete the game in two turns.
 
 So the implementation that is not the $A^*$ algorithm is first how to determine which package to ``go for'', which is done without taking in to account that the mechanics may force us to accidentally pick up another package on the way. Secondly, it is the mechanics of the game, such as how to give the actions to take to the function \texttt{runDeliveryMan}.
+
+\section{To run the program}
+
+Our program is given in the file ``DM\_strat.R'', which should be loaded into any R interpreter where the library \texttt{DeliveryMan} has been installed. The strategy for \texttt{runDeliveryMan} is called \texttt{strategy}. Thus the strategy can be viewed in action given a command similar to \texttt{runDeliveryMan(carReady = strategy ... )}.
