@@ -4,34 +4,34 @@ strategy <- function(roads,car,packages) {
   rows = nrow(roads$hroads)
   cols = ncol(roads$vroads)
   size = rows*cols
-  
+
   if (car$load > 0) {
     package = packages[car$load, ]
     target = findShortestPath(roads, car$x, car$y, package[3], package[4])
-    
+
     nextMove = 5
     if (car$x<target[1]) {nextMove=6}
     else if (car$x>target[1]) {nextMove=4}
     else if (car$y<target[2]) {nextMove=8}
     else if (car$y>target[2]) {nextMove=2}
-    
+
     car$nextMove=nextMove
     return(car)
   }
   else {
     packages = packages[packages[,5] == 0, ] #discard already delivered packages
-    
+
     min = .Machine$integer.max
     nrOfPackages = max(1,nrow(packages))
-    nextPackage = packages #if there is only one package, packages is not a matrix but a vector 
+    nextPackage = packages #if there is only one package, packages is not a matrix but a vector
     if (nrOfPackages > 1) {
       permutationMatrix = permutations(1:nrOfPackages)
       bestPerm = permutationMatrix[1, ]
-      
+
       for (r in 1:nrow(permutationMatrix)) {
         p = permutationMatrix[r, ]
         dist = permDistance(car, roads, packages, p, matrix(0, nrow=size, ncol=size))
-        
+
         if (dist < min) {
           min = dist
           bestPerm = p
@@ -40,17 +40,16 @@ strategy <- function(roads,car,packages) {
       nextPackage = packages[bestPerm[1], ]
     }
     target = findShortestPath(roads, car$x, car$y, nextPackage[1], nextPackage[2])
-    
+
     nextMove = 5
     if (car$x<target[1]) {nextMove=6}
     else if (car$x>target[1]) {nextMove=4}
     else if (car$y<target[2]) {nextMove=8}
     else if (car$y>target[2]) {nextMove=2}
-    
+
     car$nextMove=nextMove
     return(car)
   }
-  
 }
 
 
@@ -131,7 +130,7 @@ children <- function(n, roads) {
   lapply(Filter(in.range, actions), node.from.action)
 }
 
-# A priority queues is represented by an ordered lists of node-priority
+# A priority queue is represented by an ordered lists of node-priority
 # pairs.
 
 # Update or insert. If an equivalent node with lower priority already
@@ -167,7 +166,6 @@ a.star <- function(start, goal, roads) {
     n <- f[[1]][[1]]
     f <- f[-1]
     if (all(n$pos == goal)) {
-      
       return(extract.path(n))
     }
     v <- append(v, list(n))
