@@ -45,9 +45,9 @@ In particular, $d(n, n') = d((p,t,s), (p', t+1, s+c(p,p'))) = c(p,p')$.
     \begin{subsubsection}{Choice of heuristic $h$}
       Let's call an admissible and consitent heuristic $h$ acceptable, and we immediately note that $h(n) = 0$ is acceptable. This however doesn't really offer any help or improvements over the \textit{uniformed cost search} algorithm. So let's think some more.
 
-      We se that $h(n) = \texttt{ManhattanDistance}(n, g) * \min_{e_1, e_2\in E}(c_t(e_1, e_2)$, that is, $h$ is the manhattan distance from $n$ to $g$ times the minimal edge cost, is an acceptable heuristic. To see this, note that $s + h(n) \leq d(n, n')$. In addition, it \textbf{punished moving further away from the goal node $g$}. In fact, it does so by making it less costly to move away from the goal when there are potential cheap roads on the longer route. Now we're actually improving upon the search.
+      We see that $h(n) = \texttt{ManhattanDistance}(n, g) * \min_{e_1, e_2\in E}(c_t(e_1, e_2))$, that is, $h$ is the manhattan distance from $n$ to $g$ times the minimal edge cost, is an acceptable heuristic. To see this, note that $s + h(n) \leq d(n, n')$. In addition, it \textbf{punished moving further away from the goal node $g$}. In fact, it does so by making it less costly to move away from the goal when there are potential cheap roads on the longer route. Now we're actually improving upon the search.
 
-      Further elaboration on what type of heuristic could be used might be fruitful in some cases, however as the problem does not expose how the edge costs are updated or assigned, we have not been capable of finding a better function. Thus we have chosen $h$ as immediately above.
+      Further elaboration on what type of heuristic could be used might be fruitful in some cases, however as the problem does not expose how the edge costs are updated or assigned, we have not been capable of finding a better function. Thus we have chosen $h$ as immediately above, disregarding the multiplication with $\min_{e_1, e_2\in E}(c_t(e_1, e_2)$ since all weights are ``always''\footnote{We have never observed any other case.} strictly bounded below by 1 for our implementation.
     \end{subsubsection}
     
     \begin{subsubsection}{Implementation considerations}
