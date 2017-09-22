@@ -1,11 +1,22 @@
-\section{Implementation that is not $A^*$}
 
-The $A^*$ search helps us find the shortest path between two given locations, but this is only of any use once we have chosen a suitable target location. If we are holding a package, the target is obvious, otherwise we must decide each turn which package to go for. Determining which package to target is done by \textbf{exhaustive search}, which is reasonable given the dimensionality of the game. For every order we could pick up the remaining packages in, we calculate the total path cost, disregard traffic conditions so that we do not have to repeatedly use a relatively costly $A^*$ search (in fact, using it would also not result in any significant improvement, our experiments suggest).
+      \vspace{3em}
+\section{Implementation that is not $A^*$}
+        \begingroup
+        \setlength{\parskip}{0em}
+        The $A^*$ search helps us find the shortest path between two given locations, but this is only of any use once we have chosen a suitable target location. If we are holding a package, the target is obvious, otherwise we must decide each turn which package to go for. Determining which package to target is done by \textbf{exhaustive search}, which is reasonable given the dimensionality of the game. For every order we could pick up the remaining packages in, we calculate the total path cost, disregard traffic conditions so that we do not have to repeatedly use a relatively costly $A^*$ search (in fact, using it would also not result in any significant improvement, our experiments suggest).
+        \endgroup
+
+
 
 Once a target location has been selected, and the shortest route has been determined (under current traffic conditions), we chose to simply follow that route. This is not as obvious a choice at it might seem, for if the traffic conditions change rapidly, there could be times where we are better off not moving at all, instead waiting for the traffic to calm down. However, the conditions actually change very slowly, and seem to never decrease by more than 1 per time step, rendering the wait action virtually useless.
 
 A potential issue we have not accounted for is the fact that we might unintentionally pick up a package because it happens to be located on the route to our current target. In this scenario, we are forced to deliver the packages in a suboptimal order. However, since this happens very rarely, and even then it typically has a fairly small impact on the resulting score, we considered fixing it to not be worth the effort.
 
+
 \section{To run the program}
 
+        \begingroup
+        \setlength{\parskip}{0em}
 Our program is given in the file ``DM\_strat.R'', which should be loaded into any R interpreter where the library \texttt{DeliveryMan} has been installed. The strategy for \texttt{runDeliveryMan} is called \texttt{strategy}. Thus the strategy can be viewed in action given a command similar to \texttt{runDeliveryMan(carReady = strategy ... )}.
+
+\endgroup

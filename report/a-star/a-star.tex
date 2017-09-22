@@ -24,9 +24,14 @@ In particular, $d(n, n') = d((p,t,s), (p', t+1, s+c(p,p'))) = c(p,p')$.
 
 \end{subsection}
 
+\newpage
 \begin{subsection}{The $A^*$ algorithm}
+      \begingroup
+      \setlength{\parskip}{0.1em}
   The precise formulation of the $A^*$-algorithm, which is the \textit{uniformed cost search} algorithm presented on page 84 in \cite{rn}, except that the node $n = (p, t, s)$ in the priority queue \textit{frontier} is ordered by $s + h(n)$ for a heuristic $h(n)$.
+  \endgroup
 
+  
   There is one thing left to explain, namely that the algorithm maintains an \textit{explored} set, such that we do not add an already expanded node back into the \textit{frontier}.
 
   This is important because with the structure of the modified \textit{uniformed cost search} algorithm and by the definition of the heuristic function $h$, when we expand a node $n'$ for the first time, we are guaranteed that we have found the minimal cost to the node $n'$. This is what is known as \textbf{optimality} of the $A^*$ algorithm.
@@ -38,27 +43,32 @@ In particular, $d(n, n') = d((p,t,s), (p', t+1, s+c(p,p'))) = c(p,p')$.
   
 \end{subsection}
 
-  \begin{subsection}{Choices for implementation}
-
-    At first, we note that for dimension $n > 1, m > 1$ the game graph $G$ is not a tree, thus we will implement $A^*$ as a graph search algorithm. This requires a heuristic function $h$ which is both admissible and consistent.
-
-    \begin{subsubsection}{Choice of heuristic $h$}
-      Let's call an admissible and consitent heuristic $h$ acceptable, and we immediately note that $h(n) = 0$ is acceptable. This however doesn't really offer any help or improvements over the \textit{uniformed cost search} algorithm. So let's think some more.
-
-      We se that $h(n) = \texttt{manhattanDistance}(n, g) * \min_{e_1, e_2\in E}(c_t(e_1, e_2)$, that is, $h$ is the manhattan distance from $n$ to $g$ times the minimal edge cost, is an acceptable heuristic. To see this, note that $s + h(n) \leq d(n, n')$. In addition, it \textbf{punished moving further away from the goal node $g$}. In fact, it does so by making it less costly to move away from the goal when there are potential cheap roads on the longer route. Now we're actually improving upon the search.
-	  
-	  However, we have observed that the minimal edge cost i almost always 1, so for simplicity, we have chosen to reduce $h$ to $h(n) = \texttt{manhattanDistance}(n, g)$.
-
-      Further elaboration on what type of heuristic could be used might be fruitful in some cases, however as the problem does not expose how the edge costs are updated or assigned, we have not been capable of finding a better function. Thus we have chosen $h$ as described above.
-    \end{subsubsection}
-    
-    \begin{subsubsection}{Implementation considerations}
-
-      The goal is to provide a function called \texttt{strategy} which can be passed to the game \texttt{runDeliveryMan} as the argument \texttt{carReady}. Since the function \texttt{runDeliveryMan} is provided in the R programming language, we have chosen to use R as well. 
-
-      \textbf{A crucial piece} of the information about \texttt{runDeliveryMan} is missing. We have no information about the non-negativity of the edge costs. Consider a graph with nodes $A, B, C$, and path costs $c(A, B) = -2, c(B, A) = 1, c(A, C) = 1$. If the goal is to go from $A$ to $C$, we easily see that the $A^*$-algorithm will never terminate. However, manual experimentation gives strong indications that the edge costs of \texttt{runDeliveryMan} are non-negative (this is also suggested by the interpretation of the edge costs as delays caused by traffic conditions). Thus we can safely use it to find a lowest cost path. 
-	  
-	  Since we cannot predict the traffic conditions of the future, our search will assume that each edge cost is static, thus finding the shortest path through the current conditions. Under this assumption, $A^*$ is guaranteed to find an optimal path, but in reality, we know that the conditions change. However, if the function determining these cost alterations is balanced, so that relative cost differences between edges are preserved over time (or, more accurately, is reflected in their expected values), then the algorithm will still give the optimal planned route. Through manual experimentation we have concluded that this appears to be (more or less) the case.
+\begin{subsection}{Choices for implementation}
+  \begingroup
+  \setlength{\parskip}{0.1em}
+      At first, we note that for dimension $n > 1, m > 1$ the game graph $G$ is not a tree, thus we will implement $A^*$ as a graph search algorithm. This requires a heuristic function $h$ which is both admissible and consistent.
+      \endgroup
+      \begin{subsubsection}{Choice of heuristic $h$}
+        \begingroup
+        \setlength{\parskip}{0em}
+        Let's call an admissible and consitent heuristic $h$ acceptable, and we immediately note that $h(n) = 0$ is acceptable. This however doesn't really offer any help or improvements over the \textit{uniformed cost search} algorithm. So let's think some more.
+        \endgroup
+        
+        We se that $h(n) = \texttt{manhattanDistance}(n, g) * \min_{e_1, e_2\in E}(c_t(e_1, e_2)$, that is, $h$ is the manhattan distance from $n$ to $g$ times the minimal edge cost, is an acceptable heuristic. To see this, note that $s + h(n) \leq d(n, n')$. In addition, it \textbf{punished moving further away from the goal node $g$}. In fact, it does so by making it less costly to move away from the goal when there are potential cheap roads on the longer route. Now we're actually improving upon the search.
+        
+        However, we have observed that the minimal edge cost i almost always 1, so for simplicity, we have chosen to reduce $h$ to $h(n) = \texttt{manhattanDistance}(n, g)$.
+        
+        Further elaboration on what type of heuristic could be used might be fruitful in some cases, however as the problem does not expose how the edge costs are updated or assigned, we have not been capable of finding a better function. Thus we have chosen $h$ as described above.
+      \end{subsubsection}
+      
+      
+      \begin{subsubsection}{Implementation considerations}
+        
+        The goal is to provide a function called \texttt{strategy} which can be passed to the game \texttt{runDeliveryMan} as the argument \texttt{carReady}. Since the function \texttt{runDeliveryMan} is provided in the R programming language, we have chosen to use R as well.
+        
+        \textbf{A crucial piece} of the information about \texttt{runDeliveryMan} is missing. We have no information about the non-negativity of the edge costs. Consider a graph with nodes $A, B, C$, and path costs $c(A, B) = -2, c(B, A) = 1, c(A, C) = 1$. If the goal is to go from $A$ to $C$, we easily see that the $A^*$-algorithm will never terminate. However, manual experimentation gives strong indications that the edge costs of \texttt{runDeliveryMan} are non-negative (this is also suggested by the interpretation of the edge costs as delays caused by traffic conditions). Thus we can safely use it to find a lowest cost path. 
+        
+        Since we cannot predict the traffic conditions of the future, our search will assume that each edge cost is static, thus finding the shortest path through the current conditions. Under this assumption, $A^*$ is guaranteed to find an optimal path, but in reality, we know that the conditions change. However, if the function determining these cost alterations is balanced, so that relative cost differences between edges are preserved over time (or, more accurately, is reflected in their expected values), then the algorithm will still give the optimal planned route. Through manual experimentation we have concluded that this appears to be (more or less) the case.
 	
 	  If the traffic conditions changed in such a way that the future cost of an edge is independent of its current cost, then our algorithm would be of no use, and we would be better off just always picking the cheapest available action that moves us closer to the target.
 
@@ -68,10 +78,14 @@ In particular, $d(n, n') = d((p,t,s), (p', t+1, s+c(p,p'))) = c(p,p')$.
 
     \textbf{The mechanics} of \texttt{runDeliveryMan} follows the mechanics for the game presented above. Therefor it is a direct consequence that the program we've written is guided by those. 
 
-    \begin{subsubsection}{Implementation of $A^*$ }
 
-      R provides a rather functional style of programming, and since the dimensionality of the problem permits rather unsofisticated algorithms, the actual implementation of the $A^*$ algorithm follows the algorithm presented in \cite{rn} as the \textit{uniformed cost search}.
-
-    \end{subsubsection}
 
   \end{subsection}
+
+  \begin{subsection}{Implementation of $A^*$ }
+        \begingroup
+        \setlength{\parskip}{0em}
+
+        R provides a rather functional style of programming, and since the dimensionality of the problem permits rather unsofisticated algorithms, the actual implementation of the $A^*$ algorithm follows the algorithm presented in \cite{rn} as the \textit{uniformed cost search}.
+        \endgroup
+    \end{subsection}

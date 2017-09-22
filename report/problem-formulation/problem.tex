@@ -12,6 +12,7 @@
     Fortunately, the city's traffic control office provides continuous, up-to-date information about traffic load for each road-segment at each moment in time. So at each intersection, if you can develop some algorithm that is fast enough at computing, you will be able to determine the most optimal route at your current location. Or, if you find it appropriate, you could wait a while at the intersection. It is up to you, it's not as if Hubert J. Farnsworth, the not so benevolent dictator of ``Planet Express'' has any idea of what is going on.
   \end{subsection}
 
+  \newpage
   \begin{subsection}{Game Construction}
     We begin by introducing a planar graph $G$ that can be visualized as a rectangular grid, which gives an intuition of how the game looks and provide the game board. We assume that we have been given a tuple $(m, n)$ of integers $m \geq 1, n \geq 1$ which define the vertical and horizontal \textbf{dimensions} of the game, respectively.
     
@@ -68,6 +69,7 @@
         \item \textit{Rules}:
           The game is played in turns. Each turn $t$, you may take one of the following \textbf{actions} $A = \{a_1, ..., a_5 \}$:
           \begin{enumerate}
+              \setlength\itemsep{-1em}
           \item \textit{Up}: Move from node $(i, j)$ to node $(i+1, j)$.
           \item \textit{Down}: Move from node $(i, j)$ to node $(i-1, j)$.
           \item \textit{Left}: Move from node $(i, j)$ to node $(i, j-1)$.
@@ -90,9 +92,10 @@
           \item A package $(p, d)$ is \textbf{delivered} in turn $t$ if you arrive at node $d = (i, j)$ at turn $t$ and you hold the package $(p, d)$.  
 
           \end{itemize}
-          
+          \newpage
         \item \textit{Mechanical constraints}:
           \begin{itemize}
+              \setlength\itemsep{-1em}
           \item You do not pick up a package in the same turn that you deliver a package.
           \item You do not pick up a package at the start of the game (turn $t = 1$).
           \item You can only hold one package at a time.
