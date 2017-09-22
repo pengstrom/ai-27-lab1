@@ -1,66 +1,37 @@
 library(DeliveryMan)
 
-manhattanDist <- function(x1, y1, x2, y2) {
-  return(abs(x2-x1)+abs(y2-y1))
-}
-
-#Calculates the distance from a point (x,y) to the package P's pickup point, and then to its delivery point.
-manhattanPackageDist <- function(x, y, P){
-  return(manhattanDist(x,y,P[1],P[2]) + manhattanDist(P[1],P[2], P[3],P[4]))
-}
-
-triggeredR <- 0
-permDistance <- function(car, packages, permutation, roads) {
-  dist = 0
-  
-  #print(permutation)
-  for (i in 0:max(1,(length(permutation)-1))) {
-    A = permutation[i]
-    B = permutation[i+1]
-    if (i == 0) {
-      dist = dist + manhattanPackageDist(car$x, car$y, packages[B, ])
-    }
-    else {
-      dist = dist + manhattanPackageDist(packages[A,3], packages[A,4], packages[B, ])
-    }
-    #print(dist)
-  }
-  return(dist)
-}
-
 strategy <- function(roads,car,packages) {
-  
+  rows = nrow(roads$hroads)
+  cols = ncol(roads$vroads)
+  size = rows*cols
+
   if (car$load > 0) {
     package = packages[car$load, ]
     target = findShortestPath(roads, car$x, car$y, package[3], package[4])
+
     nextMove = 5
     if (car$x<target[1]) {nextMove=6}
     else if (car$x>target[1]) {nextMove=4}
     else if (car$y<target[2]) {nextMove=8}
     else if (car$y>target[2]) {nextMove=2}
-    
+
     car$nextMove=nextMove
     return(car)
   }
   else {
-    
-    packages = packages[packages[,5] == 0, ]
-    
+    packages = packages[packages[,5] == 0, ] #discard already delivered packages
+
     min = .Machine$integer.max
-    nrOfPackages = max(1,nrow(packages));
-    
-    nextPackage = packages
+    nrOfPackages = max(1,nrow(packages))
+    nextPackage = packages #if there is only one package, packages is not a matrix but a vector
     if (nrOfPackages > 1) {
-      permutations = permutations(1:nrOfPackages)
-      permutations = tapply(permutations,
-                            rep(1:nrow(permutations),
-                                each=ncol(permutations)),
-                            function(i)i)
-      
-      bestPerm = permutations[1]
-      
-      for (p in permutations) {
-        dist = permDistance(car, packages, p, roads)
+      permutationMatrix = permutations(1:nrOfPackages)
+      bestPerm = permutationMatrix[1, ]
+
+      for (r in 1:nrow(permutationMatrix)) {
+        p = permutationMatrix[r, ]
+        dist = permDistance(car, roads, packages, p, matrix(0, nrow=size, ncol=size))
+
         if (dist < min) {
           min = dist
           bestPerm = p
@@ -68,20 +39,45 @@ strategy <- function(roads,car,packages) {
       }
       nextPackage = packages[bestPerm[1], ]
     }
-    
     target = findShortestPath(roads, car$x, car$y, nextPackage[1], nextPackage[2])
-    
+
     nextMove = 5
     if (car$x<target[1]) {nextMove=6}
     else if (car$x>target[1]) {nextMove=4}
     else if (car$y<target[2]) {nextMove=8}
     else if (car$y>target[2]) {nextMove=2}
-    
+
     car$nextMove=nextMove
-    #print(car$nextMove)
     return(car)
   }
-  
+}
+
+
+
+#Calculates the distance between (x1,y1) and (x2,y2).
+manhattanDist <- function(x1, y1, x2, y2) {
+  return(abs(x2-x1)+abs(y2-y1))
+}
+
+#Calculates the distance from a point (x,y) to the package P's pickup point, and then to its delivery point.
+packageDist <- function(x, y, P){
+  return(manhattanDist(x, y, P[1], P[2]) + manhattanDist(P[1], P[2], P[3], P[4]))
+}
+
+#Estimates the total (manhattan) distnace required to pick up all packages in the order given by the permutation
+permDistance <- function(car, roads, packages, permutation, preCalc) {
+  dist = 0
+  for (i in 0:max(1,(length(permutation)-1))) {
+    A = permutation[i]
+    B = permutation[i+1]
+    if (i == 0) {
+      dist = dist + packageDist(car$x, car$y, packages[B, ])
+    }
+    else {
+      dist = dist + packageDist(packages[A,3], packages[A,4], packages[B, ])
+    }
+  }
+  return(dist)
 }
 
 # Returns a matrix whose rows are the permutations of v in lexicographical
@@ -104,36 +100,7 @@ permutations <- function(v) {
 #returns a list of coordinates that make the shortest path
 findShortestPath <- function(roads, fromX, fromY, toX, toY) {
   if (fromX == toX | fromY == toY) return(c(toX, toY));
-
-#  if (car$x<target[1]) {nextMove=6}
-#  else if (car$x>target[1]) {nextMove=4}
-#  else if (car$y<target[2]) {nextMove=8}
-#  else if (car$y>target[2]) {nextMove=2}
- 
   return(a.star(c(fromX, fromY), c(toX, toY), roads)[[2]]);
-  
-  hCost = 0
-  vCost = 0
-  if (fromX < toX) {
-    hCost = roads$hroads[fromY, fromX] 
-  }
-  else {
-    hCost = roads$hroads[fromY, fromX-1]
-  }
-  
-  if (fromY < toY) {
-    vCost = roads$vroads[fromY, fromX] 
-  }
-  else {
-    vCost = roads$vroads[fromY-1, fromX]
-  }
-  
-  if (vCost > hCost) {
-    return(c(toX, fromY))
-  }
-  else {
-    return(c(fromX, toY))
-  }
 }
 
 # A node has a position, a cost, and possibly a parent. We say that two
@@ -163,7 +130,7 @@ children <- function(n, roads) {
   lapply(Filter(in.range, actions), node.from.action)
 }
 
-# A priority queues is represented by an ordered lists of node-priority
+# A priority queue is represented by an ordered lists of node-priority
 # pairs.
 
 # Update or insert. If an equivalent node with lower priority already
@@ -199,7 +166,6 @@ a.star <- function(start, goal, roads) {
     n <- f[[1]][[1]]
     f <- f[-1]
     if (all(n$pos == goal)) {
-
       return(extract.path(n))
     }
     v <- append(v, list(n))
@@ -210,34 +176,9 @@ a.star <- function(start, goal, roads) {
   }
 }
 
-a.star.dist <- function(start, goal, roads) {
-  h <- function(n) print(n-goal); sum(abs(n - goal))
-  f <- list()
-  v <- list()
-  f <- pq.upsert(f, node(start, 0), 0)
-  repeat {
-    n <- f[[1]][[1]]
-    f <- f[-1]
-    if (all(n$pos == goal)) return(extract.path(n))
-    v <- append(v, list(n))
-    for (c in children(n, roads)) {
-      if (find(c, v)) next
-      f <- pq.upsert(f, c, h(c$pos))
-    }
-  }
-}
-test.a.star <- function() {
-  hroads <- c(1, 7, 15, 2, 23, 7, 9, 8, 1, 4, 2, 14, 4, 5, 15, 2, 2, 8, 11, 5, 10, 5, 3, 9, 12, 8, 6, 4, 13, 4, 7, 4, 35, 14, 2, 1, 1, 11, 7, 5, 20, 8, 5, 2, 15, 10, 5, 2, 9, 4, 8, 3, 3, 7, 20, 15, 6, 3, 1, 4, 13, 15, 19, 26, 3, 17, 1, 1, 1, 11, 1, 21, 3, 1, 10, 6, 6, 3, 3, 15, 2, 15, 11, 11, 15, 9, 15, 7, 11, 7)
-  vroads <- c(20, 18, 11, 4, 8, 15, 1, 9, 12, 7, 12, 9, 8, 6, 2, 2, 12, 7, 12, 5, 6, 12, 9, 2, 2, 2, 5, 5, 17, 18, 7, 9, 1, 18, 6, 7, 14, 11, 8, 11, 30, 9, 3, 13, 10, 7, 8, 19, 4, 14, 7, 2, 9, 2, 15, 19, 17, 10, 1, 6, 8, 8, 20, 23, 11, 10, 8, 2, 3, 9, 13, 16, 7, 12, 2, 2, 4, 11, 7, 4, 3, 6, 8, 1, 9, 4, 20, 13, 2, 4)
-  roads <- list(
-    hroads = matrix(hroads, nrow = 10),
-    vroads = matrix(vroads, ncol = 10)
-  )
-  all(
-    all.equal(a.star(c(1, 1), c(10, 10), roads), list(c(1, 1), c(2, 1), c(3, 1), c(3, 2), c(3, 3), c(3, 4), c(4, 4), c(4, 5), c(4, 6), c(4, 7), c(5, 7), c(5, 8), c(6, 8), c(7, 8), c(8, 8), c(9, 8), c(10, 8), c(10, 9), c(10, 10))),
-    all.equal(a.star(c(1, 10), c(10, 1), roads), list(c(1, 10), c(2, 10), c(3, 10), c(3, 9), c(3, 8), c(3, 7), c(4, 7), c(5, 7), c(6, 7), c(7, 7), c(8, 7), c(8, 6), c(8, 5), c(8, 4), c(9, 4), c(9, 3), c(9, 2), c(9, 1), c(10, 1)))
-  )
-}
+
+runDeliveryMan(strategy)
+
 
 averageTest <- function(tests){
   sum = 0
@@ -251,4 +192,4 @@ averageTest <- function(tests){
   print(sum/i)
   return(0)
 }
-
+#averageTest(500)

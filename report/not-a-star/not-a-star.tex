@@ -1,12 +1,10 @@
 \section{Implementation that is not $A^*$}
 
-Path costs of \texttt{runDeliveryMan} are updated each turn. Thus each turn, we determine which package to go for, and get its location and then run the $A^*$ search. Determining which package is chosen is done by \textbf{exhaustive search}, which is reasonable given the dimensionality of the game.
+The $A^*$ search helps us find the shortest path between two given locations, but this is only of any use once we have chosen a suitable target location. If we are holding a package, the target is obvious, otherwise we must decide each turn which package to go for. Determining which package to target is done by \textbf{exhaustive search}, which is reasonable given the dimensionality of the game. For every order we could pick up the remaining packages in, we calculate the total path cost, disregard traffic conditions so that we do not have to repeatedly use a relatively costly $A^*$ search (in fact, using it would also not result in any significant improvement, our experiments suggest).
 
-The $A^*$ algorithm is thus \textbf{optimal given the current environment}. However, it is easy to think of an example where, if we could access information about future, it would have been wiser to choose a more costly path earlier on. For example, take the nodes $A, B, C$ and we want to travel from $A$ to $C$. If the costs of the current turn are
-$$c(A, C) = 3, c(A, B) = 1, c(B, C) = 3,$$
-we obviously want to travel directly to $C$. However, if the next turn would change only $c(B, C)$ to $1$, we easily see that it would have been better to complete the game in two turns.
+Once a target location has been selected, and the shortest route has been determined (under current traffic conditions), we chose to simply follow that route. This is not as obvious a choice at it might seem, for if the traffic conditions change rapidly, there could be times where we are better off not moving at all, instead waiting for the traffic to calm down. However, the conditions actually change very slowly, and seem to never decrease by more than 1 per time step, rendering the wait action virtually useless.
 
-So the implementation that is not the $A^*$ algorithm is first how to determine which package to ``go for'', which is done without taking in to account that the mechanics may force us to accidentally pick up another package on the way. Secondly, it is the mechanics of the game, such as how to give the actions to take to the function \texttt{runDeliveryMan}.
+A potential issue we have not accounted for is the fact that we might unintentionally pick up a package because it happens to be located on the route to our current target. In this scenario, we are forced to deliver the packages in a suboptimal order. However, since this happens very rarely, and even then it typically has a fairly small impact on the resulting score, we considered fixing it to not be worth the effort.
 
 \section{To run the program}
 
