@@ -9,7 +9,8 @@ manhattanPackageDist <- function(x, y, P){
   return(manhattanDist(x,y,P[1],P[2]) + manhattanDist(P[1],P[2], P[3],P[4]))
 }
 
-permDistance <- function(car, packages, permutation) {
+triggeredR <- 0
+permDistance <- function(car, packages, permutation, roads) {
   dist = 0
   
   #print(permutation)
@@ -51,12 +52,15 @@ strategy <- function(roads,car,packages) {
     nextPackage = packages
     if (nrOfPackages > 1) {
       permutations = permutations(1:nrOfPackages)
-      permutations = tapply(permutations,rep(1:nrow(permutations),each=ncol(permutations)),function(i)i)
+      permutations = tapply(permutations,
+                            rep(1:nrow(permutations),
+                                each=ncol(permutations)),
+                            function(i)i)
       
       bestPerm = permutations[1]
       
       for (p in permutations) {
-        dist = permDistance(car, packages, p)
+        dist = permDistance(car, packages, p, roads)
         if (dist < min) {
           min = dist
           bestPerm = p
@@ -74,6 +78,7 @@ strategy <- function(roads,car,packages) {
     else if (car$y>target[2]) {nextMove=2}
     
     car$nextMove=nextMove
+    #print(car$nextMove)
     return(car)
   }
   
@@ -99,7 +104,12 @@ permutations <- function(v) {
 #returns a list of coordinates that make the shortest path
 findShortestPath <- function(roads, fromX, fromY, toX, toY) {
   if (fromX == toX | fromY == toY) return(c(toX, toY));
-  
+
+#  if (car$x<target[1]) {nextMove=6}
+#  else if (car$x>target[1]) {nextMove=4}
+#  else if (car$y<target[2]) {nextMove=8}
+#  else if (car$y>target[2]) {nextMove=2}
+ 
   return(a.star(c(fromX, fromY), c(toX, toY), roads)[[2]]);
   
   hCost = 0
@@ -201,7 +211,7 @@ a.star <- function(start, goal, roads) {
 }
 
 a.star.dist <- function(start, goal, roads) {
-  h <- function(n) sum(abs(n - goal))
+  h <- function(n) print(n-goal); sum(abs(n - goal))
   f <- list()
   v <- list()
   f <- pq.upsert(f, node(start, 0), 0)
@@ -212,11 +222,10 @@ a.star.dist <- function(start, goal, roads) {
     v <- append(v, list(n))
     for (c in children(n, roads)) {
       if (find(c, v)) next
-      f <- pq.upsert(f, c, c$cost + h(c$pos))
+      f <- pq.upsert(f, c, h(c$pos))
     }
   }
 }
-
 test.a.star <- function() {
   hroads <- c(1, 7, 15, 2, 23, 7, 9, 8, 1, 4, 2, 14, 4, 5, 15, 2, 2, 8, 11, 5, 10, 5, 3, 9, 12, 8, 6, 4, 13, 4, 7, 4, 35, 14, 2, 1, 1, 11, 7, 5, 20, 8, 5, 2, 15, 10, 5, 2, 9, 4, 8, 3, 3, 7, 20, 15, 6, 3, 1, 4, 13, 15, 19, 26, 3, 17, 1, 1, 1, 11, 1, 21, 3, 1, 10, 6, 6, 3, 3, 15, 2, 15, 11, 11, 15, 9, 15, 7, 11, 7)
   vroads <- c(20, 18, 11, 4, 8, 15, 1, 9, 12, 7, 12, 9, 8, 6, 2, 2, 12, 7, 12, 5, 6, 12, 9, 2, 2, 2, 5, 5, 17, 18, 7, 9, 1, 18, 6, 7, 14, 11, 8, 11, 30, 9, 3, 13, 10, 7, 8, 19, 4, 14, 7, 2, 9, 2, 15, 19, 17, 10, 1, 6, 8, 8, 20, 23, 11, 10, 8, 2, 3, 9, 13, 16, 7, 12, 2, 2, 4, 11, 7, 4, 3, 6, 8, 1, 9, 4, 20, 13, 2, 4)
@@ -230,6 +239,16 @@ test.a.star <- function() {
   )
 }
 
-runDeliveryMan(strategy, doPlot = FALSE,
-               pause=0)
+averageTest <- function(tests){
+  sum = 0
+  for (i in 1:tests) {
+    sum=sum+runDeliveryMan(carReady = strategy, dim = 10, turns = 2000, doPlot = F, pause = 0, del = 5)
+    if(i%%10==0){
+      print(i)
+      print(sum/i)
+    }
+  }
+  print(sum/i)
+  return(0)
+}
 

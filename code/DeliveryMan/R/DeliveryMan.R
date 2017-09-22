@@ -69,6 +69,7 @@ runDeliveryMan <- function (carReady=manualDM,dim=10,turns=2000,
   packages[,5]=rep(0,del)
   for (i in 1:turns) {
     roads=updateRoads(roads$hroads,roads$vroads)
+    #print(i)
     if (doPlot) {
       makeDotGrid(dim,i) 
       plotRoads(roads$hroads,roads$vroads) 
