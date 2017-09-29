@@ -24,14 +24,15 @@ stratCroc = function(moveInfo,readings,positions,edges,probs) {
   probPerPond = probPonds(readings, probs)
   probPerPond = probPerPond/sum(probPerPond)
   
-  for (tourist in 1:2)
-  if (!is.na(positions[tourist])) {
-    if (positions[tourist] < 0) {
-      probPerPond = rep(0, ponds)
-      probPerPond[-positions[tourist]] = 1
-    }
-    else {
-      probPerPond[positions[tourist]] = 0    
+  for (tourist in 1:2) {
+    if (!is.na(positions[tourist])) {
+      if (positions[tourist] < 0) {
+        probPerPond = rep(0, ponds)
+        probPerPond[-positions[tourist]] = 1
+      }
+      else {
+        probPerPond[positions[tourist]] = 0    
+      }
     }
   }
   
@@ -42,10 +43,16 @@ stratCroc = function(moveInfo,readings,positions,edges,probs) {
   newProb = newProb/sum(newProb)
   
   validMovesA = c(positions[3], edges[edges[,1] == positions[3], 2], edges[edges[,2] == positions[3], 1])
-  moveA = getBestMove(validMovesA, newProb, dist)
+  moveA = getBestMove(positions[3], validMovesA, newProb, dist)
   
-  validMovesB = c(moveA, edges[edges[,1] == moveA, 2], edges[edges[,2] == moveA, 1])
-  moveB = getBestMove(validMovesB, newProb, dist)
+  validMovesB = c(edges[edges[,1] == moveA, 2], edges[edges[,2] == moveA, 1])
+  if (moveA != positions[3]) {
+    validMovesB = c(validMovesB, moveA)
+  }
+  else {
+    newProb[moveA] <- 0
+  }
+  moveB = getBestMove(moveA, validMovesB, newProb, dist)
   
   moveInfo$mem[[2]] <- NA
   if (moveB == moveA) {
@@ -63,7 +70,9 @@ stratCroc = function(moveInfo,readings,positions,edges,probs) {
   return(moveInfo)
 }
 
-getBestMove = function(validMoves, probs, dist) {
+getBestMove = function(source, validMoves, probs, dist) {
+  magicNumber = 3
+  probs = probs^magicNumber
   targets = rep(0, length(probs))
   maxDist = max(dist)
   for (target in validMoves) {
@@ -71,6 +80,11 @@ getBestMove = function(validMoves, probs, dist) {
       targets[target] = targets[target] + probs[pond]/(1+dist[target, pond])
     }
   }
+  
+  if (source%in%validMoves) {
+    targets[source] = targets[source] + probs[source] #Encourages searching
+  }
+  
   return(which.max(targets))
 }
 
@@ -121,7 +135,7 @@ probPonds = function(readings, probs) {
   return(results)
 }
 
-
+set.seed(46)
 runWheresCroc(makeMoves=stratCroc, showCroc = T)
 
 averageTest <- function(tests){
