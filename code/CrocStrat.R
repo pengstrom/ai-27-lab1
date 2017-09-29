@@ -16,7 +16,9 @@ stratCroc = function(moveInfo,readings,positions,edges,probs) {
     lastCheck = moveInfo$mem[[2]]
     transitionMatrix = moveInfo$mem[[3]]
     dist = moveInfo$mem[[4]]
-    oldProb[lastCheck] = 0
+    if (!is.na(lastCheck)) {
+      oldProb[lastCheck] = 0
+    }
   } 
   
   probPerPond = probPonds(readings, probs)
@@ -39,23 +41,24 @@ stratCroc = function(moveInfo,readings,positions,edges,probs) {
   newProb = newProb*probPerPond
   newProb = newProb/sum(newProb)
   
-  validMoves = c(positions[3], edges[edges[,1] == positions[3], 2], edges[edges[,2] == positions[3], 1])
-  moveTo = getBestMove(validMoves, newProb, dist)
+  validMovesA = c(positions[3], edges[edges[,1] == positions[3], 2], edges[edges[,2] == positions[3], 1])
+  moveA = getBestMove(validMovesA, newProb, dist)
   
-  validChecks = c(moveTo, edges[edges[,1] == moveTo, 2], edges[edges[,2] == moveTo, 1])
-  check = getBestMove(validChecks, newProb, dist)
+  validMovesB = c(moveA, edges[edges[,1] == moveA, 2], edges[edges[,2] == moveA, 1])
+  moveB = getBestMove(validMovesB, newProb, dist)
   
-  if (check == moveTo) {
-    check = 0
+  moveInfo$mem[[2]] <- NA
+  if (moveB == moveA) {
+    moveInfo$mem[[2]] <- moveB
+    moveB = 0
   }
-  if (moveTo == positions[3]) {
-    moveTo = 0
+  if (moveA == positions[3]) {
+    moveInfo$mem[[2]] <- moveA
+    moveA = 0
   }
-  
-  
+
   moveInfo$mem[[1]] <- newProb
-  moveInfo$mem[[2]] <- check
-  moveInfo$moves <- c(moveTo, check)
+  moveInfo$moves <- c(moveA, moveB)
   
   return(moveInfo)
 }
@@ -120,3 +123,18 @@ probPonds = function(readings, probs) {
 
 
 runWheresCroc(makeMoves=stratCroc, showCroc = T)
+
+averageTest <- function(tests){
+  sum = 0
+  for (i in 1:tests) {
+    set.seed(i)
+    sum=sum+runWheresCroc(makeMoves=stratCroc, showCroc = T, pause = 0)
+    if(i%%10==0){
+      print(i)
+      print(sum/i)
+    }
+  }
+  print(sum/i)
+  return(0)
+}
+averageTest(500)
