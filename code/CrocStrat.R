@@ -10,6 +10,7 @@ stratCroc = function(moveInfo,readings,positions,edges,probs) {
     moveInfo$mem[[3]] <- transitionMatrix
     dist = floydWarshall(ponds, transitionMatrix)
     moveInfo$mem[[4]] <- dist
+    moveInfo$mem[[5]] <- 0
   }
   else {
     oldProb = moveInfo$mem[[1]]
@@ -19,7 +20,10 @@ stratCroc = function(moveInfo,readings,positions,edges,probs) {
     if (!is.na(lastCheck)) {
       oldProb[lastCheck] = 0
     }
+    moveInfo$mem[[5]] <- moveInfo$mem[[5]] + 1
   } 
+  
+  turnNr = moveInfo$mem[[5]]
   
   probPerPond = probPonds(readings, probs)
   probPerPond = probPerPond/sum(probPerPond)
@@ -36,14 +40,12 @@ stratCroc = function(moveInfo,readings,positions,edges,probs) {
     }
   }
   
-  
-  
   newProb = oldProb%*%transitionMatrix
   newProb = newProb*probPerPond
   newProb = newProb/sum(newProb)
   
   validMovesA = c(positions[3], edges[edges[,1] == positions[3], 2], edges[edges[,2] == positions[3], 1])
-  moveA = getBestMove(positions[3], validMovesA, newProb, dist)
+  moveA = getBestMove(positions[3], validMovesA, newProb, dist, turnNr)
   
   validMovesB = c(edges[edges[,1] == moveA, 2], edges[edges[,2] == moveA, 1])
   if (moveA != positions[3]) {
@@ -52,7 +54,7 @@ stratCroc = function(moveInfo,readings,positions,edges,probs) {
   else {
     newProb[moveA] <- 0
   }
-  moveB = getBestMove(moveA, validMovesB, newProb, dist)
+  moveB = getBestMove(moveA, validMovesB, newProb, dist, turnNr)
   
   moveInfo$mem[[2]] <- NA
   if (moveB == moveA) {
@@ -67,12 +69,12 @@ stratCroc = function(moveInfo,readings,positions,edges,probs) {
   moveInfo$mem[[1]] <- newProb
   moveInfo$moves <- c(moveA, moveB)
   
+  #print(paste(moveA, " - ",  moveB , " - ", (which.max(newProb))))
+  
   return(moveInfo)
 }
 
-getBestMove = function(source, validMoves, probs, dist) {
-  magicNumber = 3
-  probs = probs^magicNumber
+getBestMove = function(source, validMoves, probs, dist, turnNr) {
   targets = rep(0, length(probs))
   maxDist = max(dist)
   for (target in validMoves) {
@@ -126,9 +128,9 @@ floydWarshall = function(nrOfNodes, transitionMatrix) {
 probPonds = function(readings, probs) {
   results = c()
   for (i in 1:nrow(probs[[1]])) {
-    result = 0
+    result = 1
     for (j in 1:3) {
-      result = result + dnorm(readings[j], probs[[j]][i,1], probs[[j]][i,2])
+      result = result * dnorm(readings[j], probs[[j]][i,1], probs[[j]][i,2])
     }
     results <- c(results, result)
   }
@@ -136,7 +138,7 @@ probPonds = function(readings, probs) {
 }
 
 set.seed(46)
-runWheresCroc(makeMoves=stratCroc, showCroc = T)
+#runWheresCroc(makeMoves=stratCroc, showCroc = T)
 
 averageTest <- function(tests){
   sum = 0
